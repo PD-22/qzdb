@@ -5,6 +5,8 @@
     "skipLibCheck": true,
     "strict": true,
     "noEmit": true,
+    "noUncheckedIndexedAccess": true,
+    "noPropertyAccessFromIndexSignature": true,
     "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "bundler",

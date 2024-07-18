@@ -1,11 +1,11 @@
-import { getRandomNumber } from './actions';
+import { getQuizzes } from './actions';
 
 export default async function Home() {
-  const randomNumber = await getRandomNumber();
+  const quizzes = await getQuizzes();
 
   return (
     <pre className="flex min-h-screen items-center justify-center">
-      Random Number: {randomNumber}
+      {JSON.stringify(quizzes, null, 2)}
     </pre>
   );
 }
