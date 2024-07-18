@@ -1,0 +1,59 @@
+[
+  {
+    "tests": [
+      {
+        "question": "What does CSS Stands for?",
+        "variants": [
+          { "text": "Computer Styled Sections", "status": false },
+          { "text": "Cascading Style Sheets", "status": true },
+          { "text": "Crazy Solid Shapes", "status": false },
+          { "text": "None of the above", "status": false }
+        ]
+      },
+      {
+        "question": "What is the capital city of Australia?",
+        "variants": [
+          { "text": "Sydney", "status": false },
+          { "text": "Melbourne", "status": false },
+          { "text": "Canberra", "status": true },
+          { "text": "Brisbane", "status": false }
+        ]
+      }
+    ],
+    "title": "Example quiz",
+    "description": "This is an example quiz with random tests"
+  },
+  {
+    "tests": [
+      {
+        "question": "What is the chemical symbol for water?",
+        "variants": [
+          { "text": "H2O", "status": true },
+          { "text": "O2", "status": false },
+          { "text": "H2", "status": false },
+          { "text": "HO", "status": false }
+        ]
+      },
+      {
+        "question": "Who wrote 'Romeo and Juliet'?",
+        "variants": [
+          { "text": "Charles Dickens", "status": false },
+          { "text": "Mark Twain", "status": false },
+          { "text": "William Shakespeare", "status": true },
+          { "text": "Ernest Hemingway", "status": false }
+        ]
+      },
+      {
+        "question": "What planet is known as the Red Planet?",
+        "variants": [
+          { "text": "Earth", "status": false },
+          { "text": "Mars", "status": true },
+          { "text": "Jupiter", "status": false },
+          { "text": "Saturn", "status": false }
+        ]
+      }
+    ],
+    "title": "Second Quiz",
+    "description": "This is the second quiz with three tests"
+  }
+]
