@@ -68,6 +68,7 @@ BEGIN
                 qu.question_id,
                 jsonb_agg(
                     jsonb_build_object(
+                        'id', v.variant_id,
                         'text', v.variant_text,
                         'status', CASE WHEN ca.variant_id = v.variant_id THEN TRUE ELSE FALSE END
                     )
@@ -87,6 +88,7 @@ BEGIN
                 qu.quiz_id,
                 jsonb_agg(
                     jsonb_build_object(
+                        'id', qu.question_id,
                         'question', qu.question_text,
                         'variants', vct.variants
                     )
@@ -101,6 +103,7 @@ BEGIN
         )
         SELECT jsonb_agg(
             jsonb_build_object(
+                'id', q.quiz_id,
                 'title', q.title,
                 'description', q.description,
                 'tests', qct.questions
