@@ -1,4 +1,5 @@
 import { getQuizzes } from './actions';
+import DeleteQuiz from './DeleteQuiz';
 
 export default async function Home() {
   const quizzes = await getQuizzes();
@@ -8,7 +9,10 @@ export default async function Home() {
       {quizzes.map(quiz => (
         <div key={quiz.id} className='space-y-4'>
           <div>
-            <h2 className='text-4xl font-bold'>{quiz.title}</h2>
+            <h2 className='text-4xl font-bold flex items-center'>
+              {quiz.title}
+              <DeleteQuiz id={quiz.id} />
+            </h2>
             <p>{quiz.description}</p>
           </div>
           {quiz.tests.map(test => (
