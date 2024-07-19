@@ -60,64 +60,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE FUNCTION get_quiz_data() RETURNS JSONB AS $$
-BEGIN
-    RETURN (
-        WITH variants_cte AS (
-            SELECT
-                qu.question_id,
-                jsonb_agg(
-                    jsonb_build_object(
-                        'id', v.variant_id,
-                        'text', v.variant_text,
-                        'status', CASE WHEN ca.variant_id = v.variant_id THEN TRUE ELSE FALSE END
-                    )
-                    ORDER BY v.variant_id
-                ) AS variants
-            FROM
-                question qu
-            JOIN
-                variant v ON qu.question_id = v.question_id
-            LEFT JOIN
-                answer ca ON v.variant_id = ca.variant_id
-            GROUP BY
-                qu.question_id
-        ),
-        questions_cte AS (
-            SELECT
-                qu.quiz_id,
-                jsonb_agg(
-                    jsonb_build_object(
-                        'id', qu.question_id,
-                        'question', qu.question_text,
-                        'variants', vct.variants
-                    )
-                    ORDER BY qu.question_id
-                ) AS questions
-            FROM
-                question qu
-            JOIN
-                variants_cte vct ON qu.question_id = vct.question_id
-            GROUP BY
-                qu.quiz_id
-        )
-        SELECT jsonb_agg(
-            jsonb_build_object(
-                'id', q.quiz_id,
-                'title', q.title,
-                'description', q.description,
-                'tests', qct.questions
-            )
-            ORDER BY q.quiz_id
-        )
-        FROM
-            quiz q
-        JOIN
-            questions_cte qct ON q.quiz_id = qct.quiz_id
-    );
-END;
-$$ LANGUAGE plpgsql;
-
 CREATE PROCEDURE create_quiz(json_data JSONB) LANGUAGE plpgsql AS $$
 DECLARE
     v_quiz_id INTEGER;
