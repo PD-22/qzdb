@@ -17,8 +17,15 @@ export default async function Home() {
               <ul>
                 {test.variants.map(variant => (
                   <li key={variant.id}>
-                    <span className='me-2'>{variant.status ? '☑︎' : '☐'}</span>
-                    {variant.text}
+                    <label>
+                      <input
+                        type="checkbox"
+                        className='me-2'
+                        disabled
+                        checked={variant.status}
+                      />
+                      {variant.text}
+                    </label>
                   </li>
                 ))}
               </ul>
