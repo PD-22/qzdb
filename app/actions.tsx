@@ -4,50 +4,50 @@ import { groupBy, keyBy } from 'lodash';
 import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
 import { z } from "zod";
 import { pool } from "./db";
-import * as type from './type';
+import { databaseSchema, Quiz, quizSchema } from './type';
 
-export async function getQuizzes(): Promise<type.FullQuiz[]> {
+export async function getQuizzes(): Promise<Quiz[]> {
     noStore();
     const client = await pool.connect();
 
     try {
         const quizList = await client
             .query('SELECT * FROM quiz;')
-            .then(data => z.array(type.quizSchema).parse(data.rows));
+            .then(data => z.array(databaseSchema.quiz).parse(data.rows));
 
         const quizQuestions = await client
             .query('SELECT * FROM question;')
             .then(data => groupBy(
-                z.array(type.questionSchema).parse(data.rows),
+                z.array(databaseSchema.question).parse(data.rows),
                 x => x.quiz_id
             ));
 
         const questionVariants = await client
             .query('SELECT * FROM variant;')
             .then(data => groupBy(
-                z.array(type.variantSchema).parse(data.rows),
+                z.array(databaseSchema.variant).parse(data.rows),
                 x => x.question_id
             ));
 
         const questionAnswers = await client
             .query('SELECT * FROM answer;')
             .then(data => keyBy(
-                z.array(type.answerSchema).parse(data.rows),
+                z.array(databaseSchema.answer).parse(data.rows),
                 x => x.question_id
             ));
 
-        return z.array(type.fullQuizSchema).parse(quizList.map(quiz => {
+        return z.array(quizSchema).parse(quizList.map(quiz => {
             const { quiz_id, title, description } = quiz;
 
             const _questions = quizQuestions[quiz_id];
-            if (_questions === undefined) throw new Error();
+            if (_questions === undefined) throw new TypeError('questions is undefined');
 
             const questions = _questions.map(({ question_id, description }) => {
                 const variantList = questionVariants[question_id];
-                if (variantList === undefined) throw new Error();
+                if (variantList === undefined) throw new TypeError('variantList is undefined');
 
                 const answer = questionAnswers[question_id];
-                if (answer === undefined) throw new Error();
+                if (answer === undefined) throw new TypeError('answer is undefined');
 
                 const variants = variantList.map(v => ({
                     id: v.variant_id,

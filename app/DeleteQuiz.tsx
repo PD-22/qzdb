@@ -7,10 +7,7 @@ import { deleteQuiz } from "./actions";
 
 export default function DeleteQuiz({ id }: { id: number }) {
   return (
-    <form
-      action={deleteQuiz.bind(null, id)}
-      className="flex ms-4"
-    >
+    <form action={deleteQuiz.bind(null, id)} className="flex">
       <Submit />
     </form>
   );
