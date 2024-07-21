@@ -13,13 +13,15 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { mapValues, pickBy } from "lodash";
-import { useMemo, useRef } from "react";
+import { Loader2 } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useFormState } from "react-dom";
 import { useForm } from "react-hook-form";
 import { createQuiz } from "./actions";
 import { NewQuiz, NewQuizFields, newQuizSchema } from "./type";
 
 export default function CreateQuiz() {
+    const [pending, setPending] = useState(false);
     const [state, dispatch] = useFormState(createQuiz, { message: '' });
 
     const stateErrors = useMemo(() => mapValues(
@@ -39,6 +41,7 @@ export default function CreateQuiz() {
     });
 
     const formRef = useRef<HTMLFormElement>(null);
+    useEffect(() => { setPending(false); }, [state])
 
     return (
         <Form {...form}>
@@ -51,6 +54,7 @@ export default function CreateQuiz() {
                     await form.handleSubmit(() => {
                         const form = formRef.current ?? undefined;
                         dispatch(new FormData(form));
+                        setPending(true);
                     })(evt);
                 }}
             >
@@ -76,7 +80,12 @@ export default function CreateQuiz() {
                         </FormItem>
                     )}
                 />
-                <Button type="submit">Submit</Button>
+                <div className="flex items-center gap-4">
+                    <Button>Submit</Button>
+                    {pending && (
+                        <Loader2 className="animate-spin size-4 " />
+                    )}
+                </div>
                 <FormMessage className={cn(!state.issues && "text-green-500")}>
                     {state.message}
                 </FormMessage>
