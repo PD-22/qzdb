@@ -39,10 +39,10 @@ export async function getQuizzes(): Promise<type.FullQuiz[]> {
         return z.array(type.fullQuizSchema).parse(quizList.map(quiz => {
             const { quiz_id, title, description } = quiz;
 
-            const questions = quizQuestions[quiz_id];
-            if (questions === undefined) throw new Error();
+            const _questions = quizQuestions[quiz_id];
+            if (_questions === undefined) throw new Error();
 
-            const tests = questions.map(({ question_id, question_text }) => {
+            const questions = _questions.map(({ question_id, description }) => {
                 const variantList = questionVariants[question_id];
                 if (variantList === undefined) throw new Error();
 
@@ -55,10 +55,10 @@ export async function getQuizzes(): Promise<type.FullQuiz[]> {
                     status: v.variant_id === answer.variant_id
                 }));
 
-                return { id: question_id, question: question_text, variants };
+                return { id: question_id, description: description, variants };
             });
 
-            return { id: quiz_id, title, description, tests };
+            return { id: quiz_id, title, description, questions };
         }));
     } finally {
         client.release();

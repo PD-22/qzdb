@@ -18,8 +18,8 @@ client.on('notice', x => console.log(x.message));
 const quizSchema = z.array(z.object({
     title: z.string(),
     description: z.string(),
-    tests: z.array(z.object({
-        question: z.string(),
+    questions: z.array(z.object({
+        description: z.string(),
         variants: z.array(z.object({
             text: z.string(),
             status: z.boolean()

@@ -11,7 +11,7 @@ CREATE TABLE quiz(
 CREATE TABLE question(
     question_id SERIAL PRIMARY KEY,
     quiz_id INT REFERENCES quiz(quiz_id) ON DELETE CASCADE,
-    question_text TEXT NOT NULL
+    description TEXT NOT NULL
 );
 
 CREATE TABLE variant(
@@ -32,7 +32,7 @@ RETURNS TABLE (
     title VARCHAR,
     description TEXT,
     question_id INT,
-    question_text TEXT,
+    question_description TEXT,
     variant_id INT,
     variant_text TEXT,
     answer_status BOOLEAN
@@ -44,7 +44,7 @@ BEGIN
         q.title,
         q.description,
         qu.question_id,
-        qu.question_text,
+        qu.description as question_description,
         v.variant_id,
         v.variant_text,
         CASE WHEN a.variant_id = v.variant_id THEN TRUE ELSE FALSE END AS answer_status
@@ -74,25 +74,25 @@ BEGIN
     IF jsonb_typeof(json_data -> 'description') IS DISTINCT FROM 'string' THEN
         RAISE EXCEPTION 'Invalid description';
     END IF;
-    IF jsonb_typeof(json_data -> 'tests') IS DISTINCT FROM 'array' THEN
-        RAISE EXCEPTION 'Invalid tests';
+    IF jsonb_typeof(json_data -> 'questions') IS DISTINCT FROM 'array' THEN
+        RAISE EXCEPTION 'Invalid questions';
     END IF;
 
     INSERT INTO quiz (title, description)
     VALUES (json_data->>'title', json_data->>'description')
     RETURNING quiz_id INTO v_quiz_id;
 
-    FOR test_rec IN SELECT * FROM jsonb_array_elements(json_data->'tests')
+    FOR test_rec IN SELECT * FROM jsonb_array_elements(json_data->'questions')
     LOOP
-        IF jsonb_typeof(test_rec -> 'question') IS DISTINCT FROM 'string' THEN
-            RAISE EXCEPTION 'Invalid question';
+        IF jsonb_typeof(test_rec -> 'description') IS DISTINCT FROM 'string' THEN
+            RAISE EXCEPTION 'Invalid description';
         END IF;
         IF jsonb_typeof(test_rec -> 'variants') IS DISTINCT FROM 'array' THEN
             RAISE EXCEPTION 'Invalid variants';
         END IF;
 
-        INSERT INTO question (quiz_id, question_text)
-        VALUES (v_quiz_id, test_rec->>'question')
+        INSERT INTO question (quiz_id, description)
+        VALUES (v_quiz_id, test_rec->>'description')
         RETURNING question_id INTO v_question_id;
 
         FOR variant_rec IN SELECT * FROM jsonb_array_elements(test_rec->'variants')

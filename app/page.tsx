@@ -15,11 +15,11 @@ export default async function Home() {
             </h2>
             <p>{quiz.description}</p>
           </div>
-          {quiz.tests.map(test => (
-            <div key={test.id} className='space-y-0'>
-              <h3 className='text-xl font-semibold'>{test.question}</h3>
+          {quiz.questions.map(question => (
+            <div key={question.id} className='space-y-0'>
+              <h3 className='text-xl font-semibold'>{question.description}</h3>
               <ul>
-                {test.variants.map(variant => (
+                {question.variants.map(variant => (
                   <li key={variant.id}>
                     <label>
                       <input

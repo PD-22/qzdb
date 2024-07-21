@@ -9,7 +9,7 @@ export const quizSchema = z.object({
 export const questionSchema = z.object({
     question_id: z.number(),
     quiz_id: z.number(),
-    question_text: z.string()
+    description: z.string()
 });
 
 export const variantSchema = z.object({
@@ -27,9 +27,9 @@ export const fullQuizSchema = z.object({
     id: z.number(),
     title: z.string(),
     description: z.string(),
-    tests: z.array(z.object({
+    questions: z.array(z.object({
         id: z.number(),
-        question: z.string(),
+        description: z.string(),
         variants: z.array(z.object({
             id: z.number(),
             text: z.string(),
