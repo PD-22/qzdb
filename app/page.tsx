@@ -6,9 +6,9 @@ export default async function Home() {
   const quizzes = await getQuizzes();
 
   return (
-    <div className="container mx-auto p-4 space-y-8">
+    <div className="container mx-auto py-8 space-y-16">
       <CreateQuiz />
-      <div className='space-y-16 p-4'>
+      <div className='space-y-8'>
         {quizzes.map(q => <Quiz key={q.id} {...q} />)}
       </div>
     </div>

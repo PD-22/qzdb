@@ -43,18 +43,27 @@ export type Quiz = z.infer<typeof quizSchema>;
 
 export const newQuizSchema = z.object({
     title: z.string().trim().min(1),
-    description: z.string().trim().min(1)
+    description: z.string().trim().min(1),
+    questions: z.array(z.object({
+        description: z.string().trim().min(1)
+    })).nonempty()
 });
 export type NewQuiz = z.infer<typeof newQuizSchema>;
 
 export const newQuizFieldsSchema = z.object({
     title: z.string(),
-    description: z.string()
+    description: z.string(),
+    questions: z.array(z.object({
+        description: z.string()
+    }))
 });
 export type NewQuizFields = z.infer<typeof newQuizFieldsSchema>;
 
 export const newQuizIssuesSchema = z.object({
     title: z.string().optional(),
-    description: z.string().optional()
+    description: z.string().optional(),
+    questions: z.array(z.object({
+        description: z.string().optional()
+    })).optional()
 });
 export type NewQuizIssues = z.infer<typeof newQuizIssuesSchema>;

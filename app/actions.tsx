@@ -1,6 +1,6 @@
 'use server';
 
-import _, { groupBy, keyBy, mapValues } from 'lodash';
+import _, { groupBy, keyBy, map, mapValues, pickBy, sortBy } from 'lodash';
 import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
 import { z } from "zod";
 import { pool } from "./db";
@@ -74,11 +74,20 @@ export async function createQuiz(
     prevState: CreateQuizFormState,
     data: FormData
 ): Promise<CreateQuizFormState> {
-    const formData = Object.fromEntries(data);
-    const parsed = type.newQuizSchema.safeParse(formData);
-    const fields = type.newQuizFieldsSchema.parse(
-        mapValues(formData, v => v.toString())
-    );
+    const entries = Object.fromEntries(data);
+    const fields: type.NewQuizFields = type.newQuizFieldsSchema.parse({
+        ...mapValues(entries, x => x.toString()),
+        questions: map(sortBy(pickBy(mapValues(entries, (v, k) => {
+            const match = k.match(/^questions\.(\d+)\.description$/);
+            if (!match) return;
+            const index = z.coerce.number().int().parse(match?.[1]);
+            return [index, v] as const;
+        }), v => v !== undefined), v => v[0]), v => ({
+            description: v[1].toString()
+        }))
+    });
+
+    const parsed = type.newQuizSchema.safeParse(fields);
 
     const message = "Invalid form data";
     if (!parsed.success) {

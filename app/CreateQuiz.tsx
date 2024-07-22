@@ -18,6 +18,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useFormState } from "react-dom";
 import { useForm } from "react-hook-form";
 import { createQuiz } from "./actions";
+import CreateQuestions from "./CreateQuestions";
 import { NewQuiz, NewQuizFields, newQuizSchema } from "./type";
 
 export default function CreateQuiz() {
@@ -30,7 +31,7 @@ export default function CreateQuiz() {
     ), [state.issues]);
 
     const defaultValues: NewQuizFields = {
-        title: '', description: '',
+        title: '', description: '', questions: [{ description: '' }],
         ...(state.fields) ?? {}
     };
 
@@ -58,6 +59,7 @@ export default function CreateQuiz() {
                     })(evt);
                 }}
             >
+                <h2 className='text-4xl font-bold'>Create Quiz</h2>
                 <FormField
                     control={form.control}
                     name="title"
@@ -80,6 +82,7 @@ export default function CreateQuiz() {
                         </FormItem>
                     )}
                 />
+                <CreateQuestions form={form} />
                 <div className="flex items-center gap-4">
                     <Button>Submit</Button>
                     {pending && (
