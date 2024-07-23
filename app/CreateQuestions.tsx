@@ -1,6 +1,6 @@
 "use client"
 
-import { Button } from "@/components/ui/button";
+import { Button, ButtonProps } from "@/components/ui/button";
 import {
     FormControl,
     FormField,
@@ -9,13 +9,20 @@ import {
     FormMessage
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Minus, Plus } from "lucide-react";
+import { ArrowDown, ArrowUp, Minus, Plus } from "lucide-react";
 import { useFieldArray, UseFormReturn, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { NewQuiz, newQuizFieldsSchema } from "./type";
 
+const icon = {
+    variant: 'outline',
+    type: 'button',
+    size: 'icon',
+    className: 'size-8 min-w-8',
+} as const;
+
 export default function CreateQuestions({ form }: { form: UseFormReturn<NewQuiz> }) {
-    const { fields, append, remove } = useFieldArray({
+    const { fields, append, remove, swap } = useFieldArray({
         control: form.control,
         name: 'questions'
     });
@@ -39,18 +46,30 @@ export default function CreateQuestions({ form }: { form: UseFormReturn<NewQuiz>
                                 <FormControl>
                                     <Input {...field} onBlur={() => {
                                         field.onBlur();
-                                        if (length > 1 && !field.value) remove(index);
+                                        if (
+                                            (index < length - 1) &&
+                                            (length > 1) &&
+                                            (!field.value)
+                                        ) remove(index);
                                     }} />
                                 </FormControl>
-                                <Button
-                                    variant='outline'
-                                    type="button"
-                                    size='icon'
-                                    className="size-8 min-w-8"
+                                <Button {...icon}
                                     disabled={length <= 1}
                                     onClick={() => remove(index)}
                                 >
                                     <Minus className="size-4" />
+                                </Button>
+                                <Button {...icon}
+                                    disabled={index - 1 < 0}
+                                    onClick={() => swap(index, index - 1)}
+                                >
+                                    <ArrowUp className="size-4" />
+                                </Button>
+                                <Button {...icon}
+                                    disabled={index + 1 >= length}
+                                    onClick={() => swap(index, index + 1)}
+                                >
+                                    <ArrowDown className="size-4" />
                                 </Button>
                             </div>
                             <FormMessage />
@@ -60,11 +79,7 @@ export default function CreateQuestions({ form }: { form: UseFormReturn<NewQuiz>
             ))}
             <FormItem className="flex items-center gap-2 space-y-0">
                 <FormControl><Input disabled /></FormControl>
-                <Button
-                    variant='outline'
-                    type="button"
-                    size='icon'
-                    className="size-8 min-w-8"
+                <Button {...icon}
                     disabled={questions.some(q => !q.description.trim().length)}
                     onClick={() => append({ description: '' })}
                 >
@@ -72,6 +87,6 @@ export default function CreateQuestions({ form }: { form: UseFormReturn<NewQuiz>
                 </Button>
                 <FormMessage />
             </FormItem>
-        </div>
+        </div >
     )
 }
