@@ -1,3 +1,5 @@
+"use client"
+
 import { Button } from "@/components/ui/button";
 import {
     FormControl,
@@ -8,8 +10,9 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Minus, Plus } from "lucide-react";
-import { useFieldArray, UseFormReturn } from "react-hook-form";
-import { NewQuiz } from "./type";
+import { useFieldArray, UseFormReturn, useWatch } from "react-hook-form";
+import { z } from "zod";
+import { NewQuiz, newQuizFieldsSchema } from "./type";
 
 export default function CreateQuestions({ form }: { form: UseFormReturn<NewQuiz> }) {
     const { fields, append, remove } = useFieldArray({
@@ -17,12 +20,14 @@ export default function CreateQuestions({ form }: { form: UseFormReturn<NewQuiz>
         name: 'questions'
     });
 
+    const questions = z
+        .array(newQuizFieldsSchema.shape.questions.element)
+        .parse(useWatch({ name: 'questions' }));
+
     return (
         <div className="space-y-2">
             <FormLabel>Questions</FormLabel>
-            <FormMessage>
-                {form.formState.errors.questions?.root?.message}
-            </FormMessage>
+            <FormMessage>{form.formState.errors.questions?.message}</FormMessage>
             {fields.map((field, index, { length }) => (
                 <FormField
                     key={field.id}
@@ -31,9 +36,15 @@ export default function CreateQuestions({ form }: { form: UseFormReturn<NewQuiz>
                     render={({ field }) => (
                         <FormItem>
                             <div className="flex items-center gap-2">
-                                <FormControl><Input {...field} /></FormControl>
+                                <FormControl>
+                                    <Input {...field} onBlur={() => {
+                                        field.onBlur();
+                                        if (length > 1 && !field.value) remove(index);
+                                    }} />
+                                </FormControl>
                                 <Button
                                     variant='outline'
+                                    type="button"
                                     size='icon'
                                     className="size-8 min-w-8"
                                     disabled={length <= 1}
@@ -51,8 +62,10 @@ export default function CreateQuestions({ form }: { form: UseFormReturn<NewQuiz>
                 <FormControl><Input disabled /></FormControl>
                 <Button
                     variant='outline'
+                    type="button"
                     size='icon'
                     className="size-8 min-w-8"
+                    disabled={questions.some(q => !q.description.trim().length)}
                     onClick={() => append({ description: '' })}
                 >
                     <Plus className="size-4" />
