@@ -81,10 +81,20 @@ export async function createQuiz(
             const match = k.match(/^questions\.(\d+)\.description$/);
             if (!match) return;
             const index = z.coerce.number().int().parse(match?.[1]);
-            return [index, v] as const;
-        }), v => v !== undefined), v => v[0]), v => ({
-            description: v[1].toString()
-        }))
+
+            const variants = map(sortBy(pickBy(mapValues(entries, (v, k) => {
+                const variantsRegExp = new RegExp(`^questions\\.${index}\\.variants\\.(\\d+)\.text$`);
+                const match = k.match(variantsRegExp);
+                if (!match) return;
+                const i = z.coerce.number().int().parse(match?.[1]);
+                return [i, v] as const;
+            }), v => v !== undefined), v => v[0]), ([k, v]) => ({
+                text: v.toString(),
+                status: false
+            }));
+
+            return [index, { description: v.toString(), variants }] as const;
+        }), v => v !== undefined), v => v[0]), ([_, v]) => v)
     });
 
     const parsed = type.newQuizSchema.safeParse(fields);
@@ -97,6 +107,7 @@ export async function createQuiz(
         return { message, fields, issues };
     }
 
+    console.log('Parsed data: ', JSON.stringify(parsed.data, null, 2));
     return { message: 'Success' };
 }
 

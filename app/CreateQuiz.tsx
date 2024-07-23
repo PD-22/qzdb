@@ -31,7 +31,7 @@ export default function CreateQuiz() {
     ), [state.issues]);
 
     const defaultValues: NewQuizFields = {
-        title: '', description: '', questions: [{ description: '' }],
+        title: '', description: '', questions: [{ description: '', variants: [] }],
         ...(state.fields) ?? {}
     };
 
@@ -48,7 +48,7 @@ export default function CreateQuiz() {
         <Form {...form}>
             <form
                 ref={formRef}
-                className="space-y-4 max-w-80"
+                className="space-y-4 max-w-96"
                 action={dispatch}
                 onSubmit={async evt => {
                     evt.preventDefault();
