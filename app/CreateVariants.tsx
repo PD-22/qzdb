@@ -75,7 +75,7 @@ export default function CreateVariants({
                                             disabled={length <= 1}
                                             onClick={() => remove(index)}
                                         >
-                                            <Minus className="size-4" />
+                                            <Minus className="size-3" />
                                         </Button>
                                     </div>
                                 </div>
@@ -100,7 +100,7 @@ export default function CreateVariants({
                         disabled={variants.some(q => !q.text.trim().length)}
                         onClick={() => append({ text: '', status: false })}
                     >
-                        <Plus className="size-4" />
+                        <Plus className="size-3" />
                     </Button>
                 </div>
             </FormItem>

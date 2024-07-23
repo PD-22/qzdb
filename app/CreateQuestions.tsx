@@ -56,12 +56,6 @@ export default function CreateQuestions({ form }: { form: UseFormReturn<NewQuiz>
                                         }} />
                                     </FormControl>
                                     <Button {...icon}
-                                        disabled={length <= 1}
-                                        onClick={() => remove(index)}
-                                    >
-                                        <Minus className="size-4" />
-                                    </Button>
-                                    <Button {...icon}
                                         disabled={index - 1 < 0}
                                         onClick={() => swap(index, index - 1)}
                                     >
@@ -72,6 +66,12 @@ export default function CreateQuestions({ form }: { form: UseFormReturn<NewQuiz>
                                         onClick={() => swap(index, index + 1)}
                                     >
                                         <ArrowDown className="size-4" />
+                                    </Button>
+                                    <Button {...icon}
+                                        disabled={length <= 1}
+                                        onClick={() => remove(index)}
+                                    >
+                                        <Minus className="size-4" />
                                     </Button>
                                 </div>
                                 <FormMessage />
