@@ -1,6 +1,6 @@
 'use server';
 
-import _, { groupBy, keyBy, map, mapValues, pickBy, sortBy } from 'lodash';
+import _, { find, groupBy, keyBy, map, mapValues, pickBy, sortBy } from 'lodash';
 import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
 import { z } from "zod";
 import { pool } from "./db";
@@ -76,22 +76,23 @@ export async function createQuiz(
 ): Promise<CreateQuizFormState> {
     const entries = Object.fromEntries(data);
     const fields: type.NewQuizFields = type.newQuizFieldsSchema.parse({
-        ...mapValues(entries, x => x.toString()),
+        title: entries['title'],
+        description: entries['description'],
         questions: map(sortBy(pickBy(mapValues(entries, (v, k) => {
             const match = k.match(/^questions\.(\d+)\.description$/);
             if (!match) return;
             const index = z.coerce.number().int().parse(match?.[1]);
 
             const variants = map(sortBy(pickBy(mapValues(entries, (v, k) => {
-                const variantsRegExp = new RegExp(`^questions\\.${index}\\.variants\\.(\\d+)\.text$`);
-                const match = k.match(variantsRegExp);
+                const match = k.match(new RegExp(`^questions\\.${index}\\.variants\\.(\\d+)\.text$`));
                 if (!match) return;
                 const i = z.coerce.number().int().parse(match?.[1]);
                 return [i, v] as const;
-            }), v => v !== undefined), v => v[0]), ([k, v]) => ({
-                text: v.toString(),
-                status: false
-            }));
+            }), v => v !== undefined), v => v[0]), ([i, v]) => {
+                const statusRegex = `^questions\\.${index}\\.variants\\.${i}\.status$`;
+                const status = Boolean(find(entries, (_, k) => new RegExp(statusRegex).test(k)));
+                return { text: v.toString(), status };
+            });
 
             return [index, { description: v.toString(), variants }] as const;
         }), v => v !== undefined), v => v[0]), ([_, v]) => v)

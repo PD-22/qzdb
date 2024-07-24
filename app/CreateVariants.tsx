@@ -40,6 +40,8 @@ export default function CreateVariants({
                             <FormItem className="flex">
                                 <FormControl>
                                     <Checkbox
+                                        {...field}
+                                        value={undefined}
                                         className="size-10 rounded-md border-input"
                                         checked={field.value}
                                         onCheckedChange={field.onChange}
