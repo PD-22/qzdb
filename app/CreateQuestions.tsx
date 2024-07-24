@@ -9,6 +9,7 @@ import {
     FormMessage
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { last } from "lodash";
 import { ArrowDown, ArrowUp, Minus, Plus } from "lucide-react";
 import { useFieldArray, UseFormReturn, useWatch } from "react-hook-form";
 import { z } from "zod";
@@ -23,14 +24,14 @@ const icon = {
 } as const;
 
 export default function CreateQuestions({ form }: { form: UseFormReturn<NewQuiz> }) {
-    const { fields, append, remove, swap } = useFieldArray({
+    const { fields, append, remove, swap, update } = useFieldArray({
         control: form.control,
         name: 'questions'
     });
 
-    const questions = z
+    const lastQuestion = last(z
         .array(newQuizFieldsSchema.shape.questions.element)
-        .parse(useWatch({ name: 'questions' }));
+        .parse(useWatch({ name: 'questions' })));
 
     return (
         <div className="space-y-2">
@@ -45,16 +46,7 @@ export default function CreateQuestions({ form }: { form: UseFormReturn<NewQuiz>
                         render={({ field }) => (
                             <FormItem>
                                 <div className="flex gap-2">
-                                    <FormControl>
-                                        <Input {...field} onBlur={() => {
-                                            field.onBlur();
-                                            if (
-                                                (index < length - 1) &&
-                                                (length > 1) &&
-                                                (!field.value)
-                                            ) remove(index);
-                                        }} />
-                                    </FormControl>
+                                    <FormControl><Input {...field} /></FormControl>
                                     <Button {...icon}
                                         disabled={index - 1 < 0}
                                         onClick={() => swap(index, index - 1)}
@@ -68,8 +60,10 @@ export default function CreateQuestions({ form }: { form: UseFormReturn<NewQuiz>
                                         <ArrowDown className="size-4" />
                                     </Button>
                                     <Button {...icon}
-                                        disabled={length <= 1}
-                                        onClick={() => remove(index)}
+                                        onClick={() => {
+                                            if (length > 1) return remove(index);
+                                            update(index, { description: '', variants: [{ text: '', status: false }] });
+                                        }}
                                     >
                                         <Minus className="size-4" />
                                     </Button>
@@ -84,8 +78,12 @@ export default function CreateQuestions({ form }: { form: UseFormReturn<NewQuiz>
                     <FormControl>
                         <Input disabled placeholder="Add a new question" />
                     </FormControl>
-                    <Button {...icon}
-                        disabled={questions.some(q => !q.description.trim().length)}
+                    <Button
+                        variant='outline'
+                        type='button'
+                        size='icon'
+                        className='min-w-10'
+                        disabled={lastQuestion && !lastQuestion.description.trim()}
                         onClick={() => append({ description: '', variants: [{ text: '', status: false }] })}
                     >
                         <Plus className="size-4" />

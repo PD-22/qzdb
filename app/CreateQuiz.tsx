@@ -17,13 +17,14 @@ import { Loader2 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useFormState } from "react-dom";
 import { useForm } from "react-hook-form";
+import quizzes from '../scripts/quizzes.json';
 import { createQuiz } from "./actions";
 import CreateQuestions from "./CreateQuestions";
 import { NewQuiz, NewQuizFields, newQuizSchema } from "./type";
 
 export default function CreateQuiz() {
     const [pending, setPending] = useState(false);
-    const [state, dispatch] = useFormState(createQuiz, { message: '' });
+    const [state, dispatch] = useFormState(createQuiz, { message: '', fields: quizzes[0] });
 
     const stateErrors = useMemo(() => mapValues(
         pickBy(state.issues ?? {}, v => v !== undefined),
@@ -43,6 +44,9 @@ export default function CreateQuiz() {
 
     const formRef = useRef<HTMLFormElement>(null);
     useEffect(() => { setPending(false); }, [state])
+
+    const success = !state.issues && state.message.length > 0;
+    useEffect(() => { if (success) form.reset(); }, [success]);
 
     return (
         <Form {...form}>
@@ -89,7 +93,7 @@ export default function CreateQuiz() {
                         <Loader2 className="animate-spin size-4 " />
                     )}
                 </div>
-                <FormMessage className={cn(!state.issues && "text-green-500")}>
+                <FormMessage className={cn(success && "text-green-500")}>
                     {state.message}
                 </FormMessage>
             </form>
