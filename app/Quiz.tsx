@@ -31,6 +31,7 @@ function Question(
                 type="checkbox"
                 className='me-2'
                 disabled
+                name={variant.id.toString()}
                 checked={variant.status} />
               {variant.text}
             </label>

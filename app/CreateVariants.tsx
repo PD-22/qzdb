@@ -83,7 +83,11 @@ export default function CreateVariants({
                 </div>
             ))}
             <FormItem className="flex items-center gap-2 space-y-0">
-                <Checkbox className="size-8 rounded-md border-input" disabled>
+                <Checkbox
+                    className="size-8 rounded-md border-input"
+                    name={`questions.${questionIndex}.variants.${fields.length}.status`}
+                    disabled
+                >
                     <Check className="size-6" />
                 </Checkbox>
                 <FormControl>

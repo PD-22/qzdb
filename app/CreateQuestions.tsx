@@ -5,7 +5,6 @@ import {
     FormControl,
     FormField,
     FormItem,
-    FormLabel,
     FormMessage
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -35,7 +34,7 @@ export default function CreateQuestions({ form }: { form: UseFormReturn<NewQuiz>
 
     return (
         <div className="space-y-2">
-            <FormLabel>Questions</FormLabel>
+            <div className='text-sm font-medium'>Questions</div>
             <FormMessage>{form.formState.errors.questions?.message}</FormMessage>
             <div className="space-y-4">
                 {fields.map((field, index, { length }) => (
