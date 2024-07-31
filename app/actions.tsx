@@ -90,8 +90,8 @@ export async function createQuiz(
                 return [i, v] as const;
             }), v => v !== undefined), v => v[0]), ([i, v]) => {
                 const statusRegex = `^questions\\.${index}\\.variants\\.${i}\.status$`;
-                const status = Boolean(find(entries, (_, k) => new RegExp(statusRegex).test(k)));
-                return { text: v.toString(), status };
+                const status = find(entries, (_, k) => new RegExp(statusRegex).test(k));
+                return { text: v.toString(), status: status === 'true' };
             });
 
             return [index, { description: v.toString(), variants }] as const;

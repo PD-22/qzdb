@@ -49,7 +49,7 @@ export const newQuizSchema = z.object({
         variants: z.array(z.object({
             text: z.string().trim().min(1),
             status: z.boolean()
-        })).nonempty()
+        })).nonempty().refine(vs => vs.filter(v => v.status).length === 1)
     })).nonempty()
 });
 export type NewQuiz = z.infer<typeof newQuizSchema>;
@@ -75,7 +75,7 @@ export const newQuizIssuesSchema = z.object({
         variants: z.array(z.object({
             text: z.string().optional(),
             status: z.string().optional()
-        }))
-    })).optional()
+        }).optional()).optional()
+    }).optional()).optional()
 });
 export type NewQuizIssues = z.infer<typeof newQuizIssuesSchema>;

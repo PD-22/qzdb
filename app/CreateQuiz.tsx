@@ -46,7 +46,10 @@ export default function CreateQuiz() {
     useEffect(() => { setPending(false); }, [state])
 
     const success = !state.issues && state.message.length > 0;
-    useEffect(() => { if (success) form.reset(); }, [success]);
+    const [shouldReset, setShouldReset] = useState(false);
+    const { reset } = form;
+    useEffect(() => { if (success) setShouldReset(true); }, [success]);
+    useEffect(() => { if (shouldReset) { setShouldReset(false); reset(); } }, [shouldReset, reset]);
 
     return (
         <Form {...form}>
