@@ -10,10 +10,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { last } from "lodash";
 import { ArrowDown, ArrowUp, Minus, Plus } from "lucide-react";
-import { useFieldArray, UseFormReturn, useWatch } from "react-hook-form";
-import { z } from "zod";
+import { useFieldArray, UseFormReturn } from "react-hook-form";
 import CreateVariants from "./CreateVariants";
-import { NewQuiz, newQuizFieldsSchema } from "./type";
+import { NewQuiz } from "./type";
 
 const icon = {
     variant: 'outline',
@@ -28,9 +27,7 @@ export default function CreateQuestions({ form }: { form: UseFormReturn<NewQuiz>
         name: 'questions'
     });
 
-    const lastQuestion = last(z
-        .array(newQuizFieldsSchema.shape.questions.element)
-        .parse(useWatch({ name: 'questions' })));
+    const lastQuestion = last(form.watch('questions'));
 
     return (
         <div className="space-y-2">

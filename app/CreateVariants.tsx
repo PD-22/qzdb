@@ -12,7 +12,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { last } from "lodash";
 import { Circle, Minus, Plus } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { FieldPath, useFieldArray, UseFormReturn, useWatch } from "react-hook-form";
+import { FieldPath, useFieldArray, UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 import { NewQuiz, newQuizFieldsSchema } from "./type";
 
@@ -24,14 +24,16 @@ export default function CreateVariants({
     questionIndex: number
 }) {
     const baseName = useMemo(() => `questions.${questionIndex}.variants` as const, [questionIndex]);
-    const { fields, append, remove, update, replace } = useFieldArray({
+    const { fields: _fields, append, remove, update, replace } = useFieldArray({
         control: form.control,
         name: baseName
     });
+    const watchedFields = form.watch(baseName);
+    const fields = _fields.map((v, i) => ({ ...v, ...watchedFields[i] }));
 
     const variants = z
         .array(newQuizFieldsSchema.shape.questions.element.shape.variants.element)
-        .parse(useWatch({ name: baseName }));
+        .parse(fields);
     const lastVariant = last(variants);
 
     const [shouldFocus, setShouldFocus] = useState<FieldPath<NewQuiz> | null>(null);
