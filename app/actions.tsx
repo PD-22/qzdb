@@ -88,13 +88,13 @@ export async function createQuiz(
                 if (!match) return;
                 const i = z.coerce.number().int().parse(match?.[1]);
                 return [i, v] as const;
-            }), v => v !== undefined), v => v[0]), ([i, v]) => {
-                const statusRegex = `^questions\\.${index}\\.variants\\.${i}\.status$`;
-                const status = find(entries, (_, k) => new RegExp(statusRegex).test(k));
-                return { text: v.toString(), status: status === 'true' };
-            });
+            }), v => v !== undefined), v => v[0]), ([i, v]) => ({ text: v.toString() }));
 
-            return [index, { description: v.toString(), variants }] as const;
+            const answerRegex = `^questions\\.${index}\\.answer$`;
+            const answer = find(entries, (_, k) => new RegExp(answerRegex).test(k));
+
+            const value = { description: v.toString(), variants, answer: Number(answer) };
+            return [index, value] as const;
         }), v => v !== undefined), v => v[0]), ([_, v]) => v)
     });
 

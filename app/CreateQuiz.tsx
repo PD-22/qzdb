@@ -32,7 +32,9 @@ export default function CreateQuiz() {
     ), [state.issues]);
 
     const defaultValues: NewQuizFields = {
-        title: '', description: '', questions: [{ description: '', variants: [] }],
+        title: '', description: '', questions: [{
+            description: '', variants: [{ text: '' }], answer: 0
+        }],
         ...(state.fields) ?? {}
     };
 

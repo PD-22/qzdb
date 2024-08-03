@@ -58,7 +58,7 @@ export default function CreateQuestions({ form }: { form: UseFormReturn<NewQuiz>
                                     <Button {...icon}
                                         onClick={() => {
                                             if (length > 1) return remove(index);
-                                            update(index, { description: '', variants: [{ text: '', status: false }] });
+                                            update(index, { description: '', variants: [{ text: '' }], answer: 0 });
                                         }}
                                     >
                                         <Minus className="size-4" />
@@ -80,7 +80,7 @@ export default function CreateQuestions({ form }: { form: UseFormReturn<NewQuiz>
                         size='icon'
                         className='min-w-10'
                         disabled={lastQuestion && !lastQuestion.description.trim()}
-                        onClick={() => append({ description: '', variants: [{ text: '', status: false }] })}
+                        onClick={() => append({ description: '', variants: [{ text: '' }], answer: 0 })}
                     >
                         <Plus className="size-4" />
                     </Button>
