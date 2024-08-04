@@ -75,7 +75,7 @@ export default function CreateVariants({
                                 render={({ field }) => (
                                     <FormItem className="flex-auto flex items-center gap-2 space-y-0">
                                         <FormControl>
-                                            <Input {...field} className="h-8" />
+                                            <Input {...field} className="h-8 aria-[invalid=true]:border-destructive" />
                                         </FormControl>
                                         <Button
                                             variant='outline'

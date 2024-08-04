@@ -4,10 +4,10 @@ import { Button } from "@/components/ui/button";
 import {
     FormControl,
     FormField,
-    FormItem,
-    FormMessage
+    FormItem
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 import { last } from "lodash";
 import { ArrowDown, ArrowUp, Minus, Plus } from "lucide-react";
 import { useFieldArray, UseFormReturn } from "react-hook-form";
@@ -31,8 +31,12 @@ export default function CreateQuestions({ form }: { form: UseFormReturn<NewQuiz>
 
     return (
         <div className="space-y-2">
-            <div className='text-sm font-medium'>Questions</div>
-            <FormMessage>{form.formState.errors.questions?.message}</FormMessage>
+            <div
+                className={cn(
+                    'text-sm font-medium',
+                    Boolean(form.formState.errors.questions) && 'text-destructive'
+                )}
+            >Questions</div>
             <div className="space-y-4">
                 {fields.map((field, index, { length }) => (
                     <FormField
@@ -42,7 +46,9 @@ export default function CreateQuestions({ form }: { form: UseFormReturn<NewQuiz>
                         render={({ field }) => (
                             <FormItem>
                                 <div className="flex gap-2">
-                                    <FormControl><Input {...field} /></FormControl>
+                                    <FormControl>
+                                        <Input {...field} className='aria-[invalid=true]:border-destructive' />
+                                    </FormControl>
                                     <Button {...icon}
                                         disabled={index - 1 < 0}
                                         onClick={() => swap(index, index - 1)}
@@ -64,7 +70,6 @@ export default function CreateQuestions({ form }: { form: UseFormReturn<NewQuiz>
                                         <Minus className="size-4" />
                                     </Button>
                                 </div>
-                                <FormMessage />
                                 <CreateVariants form={form} questionIndex={index} />
                             </FormItem>
                         )}
@@ -84,7 +89,6 @@ export default function CreateQuestions({ form }: { form: UseFormReturn<NewQuiz>
                     >
                         <Plus className="size-4" />
                     </Button>
-                    <FormMessage />
                 </FormItem>
             </div>
         </div >

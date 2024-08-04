@@ -17,14 +17,13 @@ import { Loader2 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useFormState } from "react-dom";
 import { useForm } from "react-hook-form";
-import quizzes from '../scripts/quizzes.json';
 import { createQuiz } from "./actions";
 import CreateQuestions from "./CreateQuestions";
 import { NewQuiz, NewQuizFields, newQuizSchema } from "./type";
 
 export default function CreateQuiz() {
     const [pending, setPending] = useState(false);
-    const [state, dispatch] = useFormState(createQuiz, { message: '', fields: quizzes[0] });
+    const [state, dispatch] = useFormState(createQuiz, { message: '' });
 
     const stateErrors = useMemo(() => mapValues(
         pickBy(state.issues ?? {}, v => v !== undefined),
@@ -71,8 +70,9 @@ export default function CreateQuiz() {
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel>Title</FormLabel>
-                            <FormControl><Input {...field} /></FormControl>
-                            <FormMessage />
+                            <FormControl>
+                                <Input {...field} className="aria-[invalid=true]:border-destructive" />
+                            </FormControl>
                         </FormItem>
                     )}
                 />
@@ -82,8 +82,9 @@ export default function CreateQuiz() {
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel>Description</FormLabel>
-                            <FormControl><Input {...field} /></FormControl>
-                            <FormMessage />
+                            <FormControl>
+                                <Input {...field} className="aria-[invalid=true]:border-destructive" />
+                            </FormControl>
                         </FormItem>
                     )}
                 />
