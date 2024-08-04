@@ -20,10 +20,8 @@ const quizSchema = z.array(z.object({
     description: z.string(),
     questions: z.array(z.object({
         description: z.string(),
-        variants: z.array(z.object({
-            text: z.string(),
-            status: z.boolean()
-        })),
+        variants: z.array(z.object({ text: z.string() })),
+        answer: z.number()
     }))
 }));
 

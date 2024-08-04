@@ -18,13 +18,13 @@ export default function Quiz(
 }
 
 function Question(
-  { description, variants }: type.Question
+  { description, variants, answer }: type.Question
 ) {
   return (
     <div className='space-y-0'>
       <h3 className='text-xl font-semibold'>{description}</h3>
       <ul>
-        {variants.map(variant => (
+        {variants.map((variant, index) => (
           <li key={variant.id}>
             <label>
               <input
@@ -32,7 +32,8 @@ function Question(
                 className='me-2'
                 disabled
                 name={variant.id.toString()}
-                checked={variant.status} />
+                checked={index === answer}
+              />
               {variant.text}
             </label>
           </li>

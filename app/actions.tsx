@@ -52,10 +52,12 @@ export async function getQuizzes(): Promise<type.Quiz[]> {
                 const variants = variantList.map(v => ({
                     id: v.variant_id,
                     text: v.variant_text,
-                    status: v.variant_id === answer.variant_id
                 }));
 
-                return { id: question_id, description: description, variants };
+                const answerIndex = variants.findIndex(v => v.id === answer.variant_id);
+                if (answerIndex < 0) throw new TypeError('answerIndex is negative');
+
+                return { id: question_id, description, variants, answer: answerIndex };
             });
 
             return { id: quiz_id, title, description, questions };

@@ -41,7 +41,10 @@ export default function CreateVariants({
     const answerName = `questions.${questionIndex}.answer` as const;
     const answer = form.watch(answerName);
     const fixAns = answer < 0 || answer >= fields.length;
-    useEffect(() => { if (fixAns) form.setValue(answerName, 0); }, [fixAns]);
+    const { setValue } = form;
+    useEffect(() => {
+        if (fixAns) setValue(answerName, 0);
+    }, [fixAns, setValue, answerName]);
 
     return (
         <FormField

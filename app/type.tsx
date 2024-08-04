@@ -27,9 +27,9 @@ const questionSchema = z.object({
     description: z.string(),
     variants: z.array(z.object({
         id: z.number(),
-        text: z.string(),
-        status: z.boolean()
-    }))
+        text: z.string()
+    })),
+    answer: z.number()
 });
 export type Question = z.infer<typeof questionSchema>;
 

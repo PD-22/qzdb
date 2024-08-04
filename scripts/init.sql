@@ -21,8 +21,7 @@ CREATE TABLE variant(
 );
 
 CREATE TABLE answer(
-    answer_id SERIAL PRIMARY KEY,
-    question_id INT REFERENCES question(question_id) ON DELETE CASCADE,
+    question_id INT PRIMARY KEY REFERENCES question(question_id) ON DELETE CASCADE,
     variant_id INT REFERENCES variant(variant_id)
 );
 
@@ -67,6 +66,9 @@ DECLARE
     v_variant_id INTEGER;
     test_rec JSONB;
     variant_rec JSONB;
+    v_answer_index INTEGER;
+    v_variant_index INTEGER;
+    v_answer_found BOOLEAN := FALSE;
 BEGIN
     IF jsonb_typeof(json_data -> 'title') IS DISTINCT FROM 'string' THEN
         RAISE EXCEPTION 'Invalid title';
@@ -85,34 +87,45 @@ BEGIN
     FOR test_rec IN SELECT * FROM jsonb_array_elements(json_data->'questions')
     LOOP
         IF jsonb_typeof(test_rec -> 'description') IS DISTINCT FROM 'string' THEN
-            RAISE EXCEPTION 'Invalid description';
+            RAISE EXCEPTION 'Invalid question description';
         END IF;
         IF jsonb_typeof(test_rec -> 'variants') IS DISTINCT FROM 'array' THEN
             RAISE EXCEPTION 'Invalid variants';
+        END IF;
+        IF jsonb_typeof(test_rec -> 'answer') IS DISTINCT FROM 'number' THEN
+            RAISE EXCEPTION 'Invalid answer index';
         END IF;
 
         INSERT INTO question (quiz_id, description)
         VALUES (v_quiz_id, test_rec->>'description')
         RETURNING question_id INTO v_question_id;
 
+        v_answer_index := (test_rec ->> 'answer')::integer;
+        v_variant_index := 0;
+        v_answer_found := FALSE;
+
         FOR variant_rec IN SELECT * FROM jsonb_array_elements(test_rec->'variants')
         LOOP
             IF jsonb_typeof(variant_rec -> 'text') IS DISTINCT FROM 'string' THEN
                 RAISE EXCEPTION 'Invalid variant text';
-            END IF;
-            IF jsonb_typeof(variant_rec -> 'status') IS DISTINCT FROM 'boolean' THEN
-                RAISE EXCEPTION 'Invalid variant status';
             END IF;
 
             INSERT INTO variant (question_id, variant_text)
             VALUES (v_question_id, variant_rec->>'text')
             RETURNING variant_id INTO v_variant_id;
 
-            IF (variant_rec ->> 'status')::boolean THEN
+            IF v_variant_index = v_answer_index THEN
                 INSERT INTO answer (question_id, variant_id)
                 VALUES (v_question_id, v_variant_id);
+                v_answer_found := TRUE;
             END IF;
+
+            v_variant_index := v_variant_index + 1;
         END LOOP;
+
+        IF NOT v_answer_found THEN
+            RAISE EXCEPTION 'Invalid answer';
+        END IF;
     END LOOP;
 EXCEPTION
     WHEN OTHERS THEN
