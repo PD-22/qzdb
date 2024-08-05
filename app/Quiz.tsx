@@ -18,7 +18,7 @@ export default function Quiz(
 }
 
 function Question(
-  { description, variants, answer }: type.Question
+  { description, variants, answer }: type.Quiz['questions'][number]
 ) {
   return (
     <div className='space-y-0'>

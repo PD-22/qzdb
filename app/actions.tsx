@@ -69,15 +69,15 @@ export async function getQuizzes(): Promise<type.Quiz[]> {
 
 export type CreateQuizFormState = {
     message: string;
-    fields?: type.NewQuizFields;
-    issues?: type.NewQuizIssues;
+    fields?: Record<string | number, unknown>;
+    issues?: Record<string | number, unknown>;
 };
 export async function createQuiz(
     prevState: CreateQuizFormState,
     data: FormData
 ): Promise<CreateQuizFormState> {
     const entries = Object.fromEntries(data);
-    const fields: type.NewQuizFields = type.newQuizFieldsSchema.parse({
+    const fields = {
         title: entries['title'],
         description: entries['description'],
         questions: map(sortBy(pickBy(mapValues(entries, (v, k) => {
@@ -90,23 +90,22 @@ export async function createQuiz(
                 if (!match) return;
                 const i = z.coerce.number().int().parse(match?.[1]);
                 return [i, v] as const;
-            }), v => v !== undefined), v => v[0]), ([i, v]) => ({ text: v.toString() }));
+            }), v => v !== undefined), v => v[0]), ([, text]) => ({ text }));
 
             const answerRegex = `^questions\\.${index}\\.answer$`;
             const answer = find(entries, (_, k) => new RegExp(answerRegex).test(k));
 
-            const value = { description: v.toString(), variants, answer: Number(answer) };
+            const value = { description: v, variants, answer: Number(answer) };
             return [index, value] as const;
         }), v => v !== undefined), v => v[0]), ([_, v]) => v)
-    });
+    };
 
     const parsed = type.newQuizSchema.safeParse(fields);
 
     const message = "Invalid form data";
     if (!parsed.success) {
-        const _issues = {};
-        parsed.error.issues.forEach(a => _.set(_issues, a.path, a.message));
-        const issues = type.newQuizIssuesSchema.parse(_issues);
+        const issues = {};
+        parsed.error.issues.forEach(a => _.set(issues, a.path, a.message));
         return { message, fields, issues };
     }
 

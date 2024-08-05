@@ -35,7 +35,6 @@ export default function CreateVariants({
         Array.from(document.getElementsByName(focusName))
             .find(e => formRef.current?.contains(e))
             ?.focus();
-        console.log('focusName', focusName);
         setFocusName(null);
     }, [focusName]);
 
@@ -98,7 +97,7 @@ export default function CreateVariants({
                                                 name={`${baseName}.${index}.remove`}
                                                 size='icon'
                                                 className='size-8 min-w-8 mx-1'
-                                                disabled={!field.value}
+                                                disabled={fields.length <= 1 && !field.value}
                                                 onClick={() => {
                                                     if (length > 1) {
                                                         remove(index);

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { clamp, last } from "lodash";
+import { clamp, isEqual, last } from "lodash";
 import { ArrowDown, ArrowUp, Minus, Plus } from "lucide-react";
 import { RefObject, useEffect, useState } from "react";
 import { useFieldArray, UseFormReturn } from "react-hook-form";
@@ -75,6 +75,10 @@ export default function CreateQuestions({
                                     </Button>
                                     <Button {...icon}
                                         name={`questions.${index}.remove`}
+                                        disabled={fields.length <= 1 && isEqual(
+                                            form.getValues(`questions.${index}`),
+                                            { description: '', variants: [{ text: '' }], answer: 0 }
+                                        )}
                                         onClick={() => {
                                             if (length > 1) {
                                                 remove(index);

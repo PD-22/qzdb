@@ -12,35 +12,27 @@ import {
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { mapValues, pickBy } from "lodash";
 import { Loader2 } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useFormState } from "react-dom";
 import { useForm } from "react-hook-form";
 import { createQuiz } from "./actions";
 import CreateQuestions from "./CreateQuestions";
-import { NewQuiz, NewQuizFields, newQuizSchema } from "./type";
+import { NewQuiz, newQuizSchema } from "./type";
 
 export default function CreateQuiz() {
     const [pending, setPending] = useState(false);
     const [state, dispatch] = useFormState(createQuiz, { message: '' });
 
-    const stateErrors = useMemo(() => mapValues(
-        pickBy(state.issues ?? {}, v => v !== undefined),
-        m => ({ type: '', message: m })
-    ), [state.issues]);
-
-    const defaultValues: NewQuizFields = {
-        title: '', description: '', questions: [{
-            description: '', variants: [{ text: '' }], answer: 0
-        }],
-        ...(state.fields) ?? {}
-    };
-
     const form = useForm<NewQuiz>({
         resolver: zodResolver(newQuizSchema),
-        defaultValues,
-        errors: stateErrors
+        defaultValues: {
+            title: '', description: '', questions: [{
+                description: '', variants: [{ text: '' }], answer: 0
+            }],
+            ...(state.fields) ?? {}
+        },
+        errors: state.issues
     });
 
     const formRef = useRef<HTMLFormElement>(null);
