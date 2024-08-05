@@ -88,7 +88,7 @@ export default function CreateQuiz() {
                         </FormItem>
                     )}
                 />
-                <CreateQuestions form={form} />
+                <CreateQuestions form={form} formRef={formRef} />
                 <div className="flex items-center gap-4">
                     <Button>Submit</Button>
                     {pending && (

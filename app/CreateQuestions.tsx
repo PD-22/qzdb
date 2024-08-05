@@ -1,15 +1,12 @@
 "use client"
 
 import { Button } from "@/components/ui/button";
-import {
-    FormControl,
-    FormField,
-    FormItem
-} from "@/components/ui/form";
+import { FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { last } from "lodash";
+import { clamp, last } from "lodash";
 import { ArrowDown, ArrowUp, Minus, Plus } from "lucide-react";
+import { RefObject, useEffect, useState } from "react";
 import { useFieldArray, UseFormReturn } from "react-hook-form";
 import CreateVariants from "./CreateVariants";
 import { NewQuiz } from "./type";
@@ -21,13 +18,28 @@ const icon = {
     className: 'min-w-10',
 } as const;
 
-export default function CreateQuestions({ form }: { form: UseFormReturn<NewQuiz> }) {
+export default function CreateQuestions({
+    form,
+    formRef
+}: {
+    form: UseFormReturn<NewQuiz>,
+    formRef: RefObject<HTMLFormElement>,
+}) {
     const { fields, append, remove, swap, update } = useFieldArray({
         control: form.control,
         name: 'questions'
     });
 
     const lastQuestion = last(form.watch('questions'));
+
+    const [focusName, setFocusName] = useState<string | null>(null);
+    useEffect(() => {
+        if (!focusName) return;
+        Array.from(document.getElementsByName(focusName))
+            .find(e => formRef.current?.contains(e))
+            ?.focus();
+        setFocusName(null);
+    }, [focusName]);
 
     return (
         <div className="space-y-2">
@@ -62,15 +74,22 @@ export default function CreateQuestions({ form }: { form: UseFormReturn<NewQuiz>
                                         <ArrowDown className="size-4" />
                                     </Button>
                                     <Button {...icon}
+                                        name={`questions.${index}.remove`}
                                         onClick={() => {
-                                            if (length > 1) return remove(index);
-                                            update(index, { description: '', variants: [{ text: '' }], answer: 0 });
+                                            if (length > 1) {
+                                                remove(index);
+                                                const focusIndex = clamp(index, 0, length - 2);
+                                                setFocusName(`questions.${focusIndex}.remove`);
+                                            } else {
+                                                update(index, { description: '', variants: [{ text: '' }], answer: 0 });
+                                                setFocusName(`questions.${index}.remove`);
+                                            }
                                         }}
                                     >
                                         <Minus className="size-4" />
                                     </Button>
                                 </div>
-                                <CreateVariants form={form} questionIndex={index} />
+                                <CreateVariants form={form} formRef={formRef} questionIndex={index} />
                             </FormItem>
                         )}
                     />
