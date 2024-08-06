@@ -25,40 +25,6 @@ CREATE TABLE answer(
     variant_id INT REFERENCES variant(variant_id)
 );
 
-CREATE FUNCTION get_quiz_table()
-RETURNS TABLE (
-    quiz_id INT,
-    title VARCHAR,
-    description TEXT,
-    question_id INT,
-    question_description TEXT,
-    variant_id INT,
-    variant_text TEXT,
-    answer_status BOOLEAN
-) AS $$
-BEGIN
-    RETURN QUERY
-    SELECT
-        q.quiz_id,
-        q.title,
-        q.description,
-        qu.question_id,
-        qu.description as question_description,
-        v.variant_id,
-        v.variant_text,
-        CASE WHEN a.variant_id = v.variant_id THEN TRUE ELSE FALSE END AS answer_status
-    FROM 
-        quiz q
-    JOIN 
-        question qu ON q.quiz_id = qu.quiz_id
-    JOIN 
-        variant v ON qu.question_id = v.question_id
-    LEFT JOIN 
-        answer a ON qu.question_id = a.question_id AND v.variant_id = a.variant_id
-    ORDER BY q.quiz_id, qu.question_id, v.variant_id;
-END;
-$$ LANGUAGE plpgsql;
-
 CREATE PROCEDURE create_quiz(json_data JSONB) LANGUAGE plpgsql AS $$
 DECLARE
     v_quiz_id INTEGER;
