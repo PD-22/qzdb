@@ -10,7 +10,6 @@ import {
     FormMessage
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -20,41 +19,25 @@ import { createQuiz } from "./actions";
 import CreateQuestions from "./CreateQuestions";
 import { NewQuiz, newQuizSchema } from "./type";
 
+const defaultValues = {
+    title: '', description: '', questions: [{
+        description: '', variants: [{ text: '' }], answer: 0
+    }]
+};
+
 export default function CreateQuiz() {
     const [pending, setPending] = useState(false);
-    const [state, dispatch] = useFormState(createQuiz, { message: '' });
+    const [state, dispatch] = useFormState(createQuiz, {});
 
-    const form = useForm<NewQuiz>({
-        resolver: zodResolver(newQuizSchema),
-        defaultValues: {
-            title: '', description: '', questions: [{
-                description: '', variants: [{ text: '' }], answer: 0
-            }],
-            ...(state.fields) ?? {}
-        },
-        errors: state.issues
-    });
+    const form = useForm<NewQuiz>({ resolver: zodResolver(newQuizSchema), defaultValues });
+    const onSubmit = form.handleSubmit(x => { setPending(true); dispatch(x); });
 
     const formRef = useRef<HTMLFormElement>(null);
-    useEffect(() => { setPending(false); }, [state])
-
-    const success = !state.issues && state.message.length > 0;
+    useEffect(() => { setPending(false); }, [state]);
 
     return (
         <Form {...form}>
-            <form
-                ref={formRef}
-                className="space-y-4 max-w-96"
-                action={dispatch}
-                onSubmit={async evt => {
-                    evt.preventDefault();
-                    await form.handleSubmit(() => {
-                        const form = formRef.current ?? undefined;
-                        dispatch(new FormData(form));
-                        setPending(true);
-                    })(evt);
-                }}
-            >
+            <form ref={formRef} className="space-y-4 max-w-96" onSubmit={onSubmit}>
                 <h2 className='text-4xl font-bold'>Create Quiz</h2>
                 <FormField
                     control={form.control}
@@ -83,13 +66,14 @@ export default function CreateQuiz() {
                 <CreateQuestions form={form} formRef={formRef} />
                 <div className="flex items-center gap-4">
                     <Button>Submit</Button>
-                    {pending && (
+                    {pending ? (
                         <Loader2 className="animate-spin size-4 " />
-                    )}
+                    ) : state.success === true ? (
+                        <FormMessage className='text-green-500'>Done</FormMessage>
+                    ) : state.success === false ? (
+                        <FormMessage>Error</FormMessage>
+                    ) : undefined}
                 </div>
-                <FormMessage className={cn(success && "text-green-500")}>
-                    {state.message}
-                </FormMessage>
             </form>
         </Form >
     )

@@ -39,7 +39,7 @@ export default function CreateQuestions({
             .find(e => formRef.current?.contains(e))
             ?.focus();
         setFocusName(null);
-    }, [focusName]);
+    }, [focusName, formRef]);
 
     return (
         <div className="space-y-2">

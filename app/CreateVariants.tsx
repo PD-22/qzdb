@@ -20,7 +20,7 @@ export default function CreateVariants({
     questionIndex: number
 }) {
     const baseName = useMemo(() => `questions.${questionIndex}.variants` as const, [questionIndex]);
-    const { fields: _fields, append, remove, update, replace } = useFieldArray({
+    const { fields: _fields, append, remove, update } = useFieldArray({
         control: form.control,
         name: baseName
     });
@@ -36,7 +36,7 @@ export default function CreateVariants({
             .find(e => formRef.current?.contains(e))
             ?.focus();
         setFocusName(null);
-    }, [focusName]);
+    }, [focusName, formRef]);
 
     const answerName = `questions.${questionIndex}.answer` as const;
     const answer = form.watch(answerName);

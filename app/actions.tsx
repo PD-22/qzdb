@@ -1,6 +1,6 @@
 'use server';
 
-import _, { find, groupBy, keyBy, map, mapValues, pickBy, sortBy } from 'lodash';
+import { groupBy, keyBy } from 'lodash';
 import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
 import { z } from "zod";
 import { pool } from "./db";
@@ -67,50 +67,21 @@ export async function getQuizzes(): Promise<type.Quiz[]> {
     }
 }
 
-export type CreateQuizFormState = {
-    message: string;
-    fields?: Record<string | number, unknown>;
-    issues?: Record<string | number, unknown>;
-};
 export async function createQuiz(
-    prevState: CreateQuizFormState,
-    data: FormData
-): Promise<CreateQuizFormState> {
-    const entries = Object.fromEntries(data);
-    const fields = {
-        title: entries['title'],
-        description: entries['description'],
-        questions: map(sortBy(pickBy(mapValues(entries, (v, k) => {
-            const match = k.match(/^questions\.(\d+)\.description$/);
-            if (!match) return;
-            const index = z.coerce.number().int().parse(match?.[1]);
-
-            const variants = map(sortBy(pickBy(mapValues(entries, (v, k) => {
-                const match = k.match(new RegExp(`^questions\\.${index}\\.variants\\.(\\d+)\.text$`));
-                if (!match) return;
-                const i = z.coerce.number().int().parse(match?.[1]);
-                return [i, v] as const;
-            }), v => v !== undefined), v => v[0]), ([, text]) => ({ text }));
-
-            const answerRegex = `^questions\\.${index}\\.answer$`;
-            const answer = find(entries, (_, k) => new RegExp(answerRegex).test(k));
-
-            const value = { description: v, variants, answer: Number(answer) };
-            return [index, value] as const;
-        }), v => v !== undefined), v => v[0]), ([_, v]) => v)
-    };
-
-    const parsed = type.newQuizSchema.safeParse(fields);
-
-    const message = "Invalid form data";
-    if (!parsed.success) {
-        const issues = {};
-        parsed.error.issues.forEach(a => _.set(issues, a.path, a.message));
-        return { message, fields, issues };
+    _prevState: { success?: boolean },
+    data: unknown
+): Promise<{ success?: boolean }> {
+    try {
+        const parsed = type.newQuizSchema.parse(data);
+        console.log('Parsed data: ', JSON.stringify(parsed, null, 2));
+        return { success: true };
+    } catch (error) {
+        console.error(
+            'create quiz action failed',
+            error instanceof Error ? error.message : error
+        );
+        return { success: false };
     }
-
-    console.log('Parsed data: ', JSON.stringify(parsed.data, null, 2));
-    return { message: 'Success' };
 }
 
 export async function deleteQuiz(id: number) {
