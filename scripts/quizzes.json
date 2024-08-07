@@ -60,5 +60,20 @@
         "answer": 1
       }
     ]
+  },
+  {
+    "title": "Sample Quiz",
+    "description": "This is a sample quiz.",
+    "questions": [
+      {
+        "description": "What is the capital of France?",
+        "variants": [
+          { "text": "Paris" },
+          { "text": "London" },
+          { "text": "Berlin" }
+        ],
+        "answer": 0
+      }
+    ]
   }
 ]

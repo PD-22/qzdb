@@ -7,9 +7,9 @@ export default function Quiz(
   return (
     <div className='space-y-4'>
       <div>
-        <h2 className='text-4xl font-bold flex items-center gap-4'>
+        <h3 className='text-3xl font-bold flex items-center gap-4'>
           {title}<DeleteQuiz id={id} />
-        </h2>
+        </h3>
         <p>{description}</p>
       </div>
       {questions.map(q => <Question key={q.id} {...q} />)}
@@ -22,7 +22,7 @@ function Question(
 ) {
   return (
     <div className='space-y-0'>
-      <h3 className='text-xl font-semibold'>{description}</h3>
+      <h4 className='text-xl font-semibold'>{description}</h4>
       <ul>
         {variants.map((variant, index) => (
           <li key={variant.id}>

@@ -4,7 +4,7 @@ CREATE SCHEMA public;
 
 CREATE TABLE quiz(
     quiz_id SERIAL PRIMARY KEY,
-    title VARCHAR(255) NOT NULL UNIQUE,
+    title VARCHAR(255) NOT NULL,
     description TEXT
 );
 
