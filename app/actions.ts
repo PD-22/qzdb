@@ -2,15 +2,17 @@
 
 import { groupBy, keyBy } from 'lodash';
 import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
+import { PoolClient } from 'pg';
 import { z } from "zod";
 import { pool } from "./db";
 import * as type from './type';
 
 export async function getQuizzes(): Promise<type.Quiz[]> {
-    noStore();
-    const client = await pool.connect();
-
+    let client;
     try {
+        noStore();
+        client = await pool.connect();
+
         const quizList = await client
             .query('SELECT * FROM quiz;')
             .then(data => z.array(type.databaseSchema.quiz).parse(data.rows));
@@ -63,7 +65,7 @@ export async function getQuizzes(): Promise<type.Quiz[]> {
             return { id: quiz_id, title, description, questions };
         }));
     } finally {
-        client.release();
+        client?.release();
     }
 }
 
@@ -71,30 +73,71 @@ export async function createQuiz(
     _prevState: { success?: boolean },
     data: unknown
 ): Promise<{ success?: boolean }> {
+    let client: PoolClient | undefined;
     try {
-        const parsed = type.newQuizSchema.parse(data);
+        client = await pool.connect();
+        await client.query('BEGIN');
+
+        const parsed: type.NewQuiz = type.newQuizSchema.parse(data);
         console.log('Parsed data: ', JSON.stringify(parsed, null, 2));
+
+        const quizId = z.number().parse(await client.query(
+            `INSERT INTO quiz (title, description) VALUES ($1, $2) RETURNING quiz_id`,
+            [parsed.title, parsed.description]
+        ).then(x => x.rows[0].quiz_id));
+
+        for (const question of parsed.questions) {
+            const questionId = z.number().parse(await client.query(
+                `INSERT INTO question (quiz_id, description) VALUES ($1, $2) RETURNING question_id`,
+                [quizId, question.description]
+            ).then(x => x.rows[0].question_id));
+
+            let correctVariantId: number | undefined;
+            for (const [i, variant] of Array.from(question.variants.entries())) {
+                const variantId = z.number().parse(await client.query(
+                    `INSERT INTO variant (question_id, variant_text) VALUES ($1, $2) RETURNING variant_id`,
+                    [questionId, variant.text]
+                ).then(x => x.rows[0].variant_id));
+
+                if (i === question.answer) correctVariantId = variantId;
+            }
+
+            if (!correctVariantId) throw new Error('Invalid answer');
+            await client.query(
+                `INSERT INTO answer (question_id, variant_id) VALUES ($1, $2)`,
+                [questionId, correctVariantId]
+            );
+        }
+
+        await client.query('COMMIT');
+        console.log('Quiz created successfully');
+
         return { success: true };
     } catch (error) {
+        await client?.query('ROLLBACK');
         console.error(
             'create quiz action failed',
             error instanceof Error ? error.message : error
         );
         return { success: false };
+    } finally {
+        client?.release();
+        revalidatePath('/')
     }
 }
 
 export async function deleteQuiz(id: number) {
-    const client = await pool.connect();
+    let client;
     try {
+        client = await pool.connect();
         await client.query('BEGIN');
         await client.query('DELETE FROM quiz WHERE quiz_id = $1', [id]);
         await client.query('COMMIT');
     } catch (error) {
-        await client.query('ROLLBACK');
+        await client?.query('ROLLBACK');
         throw error;
     } finally {
         revalidatePath('/');
-        client.release();
+        client?.release();
     }
 }
