@@ -1,0 +1,50 @@
+pop stash
+
+may add more speciffic server errors
+- may validate unique quiz, question, variant headers
+- may move the answer table as a column in question
+
+Task:
+may update not new user friendly ux of +/- items
+use uuid instead of serial ids
+- also dont send db ids to the client
+add edit quiz action
+Maybe make sure that it's not possible that there will be incorrect data type and/or relations between and inside tables at any time
+- Validate relationships (e.g. insert correct_answer unrelated answer)
+- Validate data types (e.g. no empty quiz, questions...)
+- May restrict user to only database procedures / functions
+may refactor and tidy stuff before finishing
+
+Prepare PostgreSQL Database:
+Create simple table schema (Quiz, Question, Submition, answer)
+Add relationship validations (e.g. question only has 1 quiz)
+Add advanced table columns (Image, Time, Duration)
+Decide wheter to use procedures to limit available actions
+Learn and decide if it is possible and worth to store images in db
+For deployment consider Neon or Vercel cloud database
+Research PostgreSQL SQL Language docs, pgAdmin ERD tool, type ORM
+
+postponed database notes
+- consider support of disabled js webiste form (e.g. add question)
+- may be extra show off, though could do through querries or smth
+- extra show off deez nuts, Michael Scott - "No God, Please No!"
+
+Tasks: 
+Database Tables with relationships
+Email Service Provider
+Web socket notification
+Pin Code Validation
+Security, Authentication, Authorization (Admin, Manager, User)
+- Cool video: https://youtu.be/N_sUsq_y10U?si=veb70v8qGSBQB2mE
+- Consider not using JWTs, store in DB, allows immediate logout
+Server-side Rendering for Performance
+Different Language Support with Translations
+Responsive Design for Desktop, Tablet, Mobile Devices
+Table Elements with Pagination and Responsivity
+Image Upload with Validation and Optimization
+Loading Skeleton UX
+Possible Responsive Sidebar or Topbar with Navigation
+Light/Dark Mode Theme Switch Button
+Check Navigate and Redirect (Correct Document Title Displayed)
+Use Tailwind with Shadcn Library for Styling
+Deploy the finished product to a hosting provider
